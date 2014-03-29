@@ -1,9 +1,16 @@
 P2PHostaCentralService::Application.routes.draw do
+
+
+  get "hosta_central_controller/registerPeer"
+  get "hosta_central_controller/registerBackup"
+  get "hosta_central_controller/browsePage"
+  get "hosta_central_controller/updatePage"
+
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
   # You can have the root of your site routed with "root"
-  # root 'welcome#index'
+   root 'welcome#index'
 
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'
