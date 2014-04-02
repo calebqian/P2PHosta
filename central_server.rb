@@ -14,22 +14,29 @@ class CentralServer
   def browse_page
   end
 
+  def open_connection_thread(server)
+    Thread.start(server.accept) do |client|
+      puts "I got a connection from #{client.peeraddr[2]}"
+      client.puts(Time.now.ctime)
+      client.puts "Your IP is #{client.peeraddr[2]}"
+      while line = client.gets
+        puts line.chop
+        client.puts "Talk to me again!"
+      end
+      client.close
+    end
+  end
+
   #start the central server
   def start    
     server = TCPServer.open(3000)
     # loop through for serving multiple clients  
     loop {
-      Thread.start(server.accept) do |client|
-        puts "I got a connection from #{client.peeraddr[2]}"
-        client.puts(Time.now.ctime)
-        client.puts "Your IP is #{client.peeraddr[2]}"
-        client.puts "Closing the connection. Bye!"
-        client.close
-       end
+      open_connection_thread(server)
     }
   end
 
-  private :register_peer, :register_backup, :update_page, :browse_page
+  private :open_connection_thread, :register_peer, :register_backup, :update_page, :browse_page
 
 end
 
