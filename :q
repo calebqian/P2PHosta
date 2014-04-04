@@ -20,14 +20,18 @@ class CentralServer < BidirectionalServer
     send_message("PONG", host, port) 
   end
   
+  # TODO: this method checks request message, returns request type
+  def request_type(request)
+  
+  end
 
   # override the accept_handler here
   def accept_handler(client)
     while line = client.gets
-      if(request_type(line.chop) == 0)
-        line_array = line.split(":")
-        pong(client.peeraddr[2], line_array[1].to_i)
-      end 
+      if(request_type(line.chop)==0)
+        pong(client.peeraddr[2], 3001)
+      end
+     
     end
     super
   end
