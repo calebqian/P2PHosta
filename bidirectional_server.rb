@@ -4,6 +4,7 @@ class BidirectionalServer
 
 
   def send_message(msg, sender_hostname, sender_port)
+    puts "I am sending #{msg} to #{sender_hostname}:#{sender_port}" 
     server = TCPSocket.open(sender_hostname, sender_port)
     server.puts msg
     server.close
@@ -21,13 +22,15 @@ class BidirectionalServer
   end
 
   def start(port)
-    receiver = TCPServer.open(port)
-    loop {
-      open_connection_thread(receiver)  
+    Thread.start {
+      receiver = TCPServer.open(port)
+      loop {
+        open_connection_thread(receiver)  
+      }
     }
   end
 
 
-  protected  :open_connection_thread, :send_message, :accept_handler
+  protected  :open_connection_thread, :accept_handler
 end
 

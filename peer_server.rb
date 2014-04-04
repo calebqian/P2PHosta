@@ -12,29 +12,12 @@ class PeerServer < BidirectionalServer
   def handle_command
 
   end
-
-  def send_message(msg)
-    puts 'sending ...'
-    @sender.puts msg
-  end
-
-  def send_request
-  end
-
-
-  def start(sender_hostname, sender_port)
-    puts 'starting...'
-    @sender = TCPSocket.new(sender_hostname, sender_port)
-    Thread.start {
-      while line = @sender.gets
-        puts line.chop
-      end
-    }
-    
-  end
-
-  def stop
-    @sender.close
+  
+  def accept_handler(client)
+    while line = client.gets
+      puts line.chop
+    end
+    super
   end
 
 end

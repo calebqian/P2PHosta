@@ -23,12 +23,11 @@ class CentralServer < BidirectionalServer
   
   end
 
-  # override the receiver_handler here
+  # override the accept_handler here
   def accept_handler(client)
-    client.puts 'Connected.'
     while line = client.gets
       puts line.chop
-      client.puts "I got your message, #{client.peeraddr[2]}!"
+      send_message('I got cha!', client.peeraddr[2], 3001)
     end
     super
   end
