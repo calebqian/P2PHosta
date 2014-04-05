@@ -28,8 +28,25 @@ class PeerServer < BidirectionalServer
   end  
 
   def accept_handler(client)
+    puts "Entering accept_handler..."
     while line = client.gets
       puts line.chop
+      if(request_type(line)==1)
+         puts "dealing with BROWSE"     
+         line_array = line.split(":");
+         puts "searching for #{line_array[1]}"
+         path = "./tests/peer1/#{line_array[1].chop}"
+         pp path
+         file = File.open(path, "rb");
+         pp "File opened correctly."
+         contents = file.read;
+         puts contents
+         file.close;
+         client.write contents
+         puts "contents sent."
+         client.close
+
+      end
     end
     super
   end

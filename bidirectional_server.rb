@@ -8,6 +8,8 @@ class BidirectionalServer
     ret = -1 # unkown request
     if(line.start_with?('PING'))
       ret = 0
+    elsif(line.start_with?('BROWSE'))
+      ret = 1
     else
     end
     ret
@@ -49,6 +51,7 @@ class BidirectionalServer
 
   def open_connection_thread(server)
     Thread.start(server.accept) do |client|
+      puts "Conection accepted."
       accept_handler client
     end
   end

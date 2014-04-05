@@ -42,10 +42,11 @@ class CentralServer < BidirectionalServer
       num_of_peers = @peer_map.size
     end
     # random assignment
-    for i 0..num_of_peers
+    while i < num_of_peers do
       keys = @peer_map.keys
       ip = keys[rand(keys.length)]
       h[ip] = @peer_map[ip]
+      i+=1
     end
     h 
   end
@@ -67,7 +68,14 @@ class CentralServer < BidirectionalServer
     end
   end
 
-  def browse_page
+  def browse_page(pagename)
+   pp "someone wants to browse #{pagename}"
+   num_of_peers = @peer_map.size
+   if num_of_peers == 0
+     return "NOPEER"
+   end
+   selected = rand(num_of_peers)
+   ip = @peer_map.keys[selected] 
   end
 
   
@@ -80,8 +88,11 @@ class CentralServer < BidirectionalServer
         register_peer(client.peeraddr[3], line_array[1].to_i)
         pong(client)
       elsif(request_type(line.chop) == 1)
-       line_array = line.split(":") 
-        
+       line_array = line.split(":")
+       peer = browse_page(line_array[1].chop)
+       puts "I found the peer who has it is #{peer} with port #{@peer_map[peer]}" 
+       client.puts "GOFOR:#{line_array[1].chop}:#{peer}:#{@peer_map[peer]}"
+       puts "I sent GOFOR:#{line_array[1.chop]}:#{peer}:#{@peer_map[peer]}"
       end 
     end
     super
