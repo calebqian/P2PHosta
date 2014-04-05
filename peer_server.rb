@@ -9,11 +9,13 @@ class PeerServer < BidirectionalServer
     @receiver_port = receiver_port
   end
  
-  def ping(host, port)
-    send_message("PING:#{@receiver_port}", host, port)
-  end 
  
   def command_type
+  end
+
+  # override ping
+  def ping(host, port)
+    super host, port, @receiver_port
   end
 
   def handle_command

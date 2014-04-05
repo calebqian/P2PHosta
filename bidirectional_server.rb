@@ -1,4 +1,5 @@
 require 'socket'
+require 'pp'
 
 class BidirectionalServer
 
@@ -10,6 +11,28 @@ class BidirectionalServer
     else
     end
     ret
+  end
+
+  def ping(host, port, receiver_port)
+    time_before = Time.now
+    puts "Pinging #{host} #{port}..."
+    server = TCPSocket.open(host, port)
+    server.puts "PING:#{receiver_port}"
+    while line = server.gets
+      puts line.chop
+      if(line.start_with?('PONG'))
+        time_after = Time.now
+        diff = time_after - time_before
+        puts "#{diff} seconds elapsed."
+        break
+      end
+    end
+
+  end
+
+  def pong(client)
+    puts 'sending PONG...'
+    client.puts 'PONG'
   end
 
   def send_message(msg, sender_hostname, sender_port)
@@ -40,6 +63,8 @@ class BidirectionalServer
   end
 
 
-  protected  :open_connection_thread,:send_message, :accept_handler
+  protected  :open_connection_thread, :send_message, :accept_handler
+  private :pong
+
 end
 

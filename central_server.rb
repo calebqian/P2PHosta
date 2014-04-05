@@ -1,24 +1,75 @@
 require 'socket'
 require './bidirectional_server.rb'
+require 'pp'
+require 'thread'
 
 class CentralServer < BidirectionalServer
 
+  @maxnum_of_replica = 3
+  # tenative solution: hash map between peer IP and port number
+  @peer_map
+  @peer_map_mtx
+  @chunk_meta
+  @chunk_meta_mtx
+  @user_meta
+  @user_meta_mtx
+
+  def initialize
+    @peer_map = Hash.new{}
+    @peer_map_mtx = Mutex.new
+    # {chunkname => ["peer1ip", "peer2ip"]}
+    @chunk_meta = Hash.new{}
+    @chunk_meta_mtx = Mutex.new
+    # user meta: {username => {filename => [chunk1, chunk2]}}
+    @user_meta = Hash.new{}
+    @user_meta_mtx = Mutex.new
+    super
+  end
+
   #register peer server
-  def register_peer
+  def register_peer(ip, port)
+    puts "registering the instance #{ip}"
+    # duplicate insertion will overwrite the previous one
+    @peer_map[ip] = port
+    # comment this line later
+    pp @peer_map.inspect
+  end
+
+  def assign_hosting_peers
+    h = Hash.new
+    num_of_peers = @maxnum_of_replica
+    if(@peer_map.size < @maxnum_of_replica)
+      num_of_peers = @peer_map.size
+    end
+    # random assignment
+    for i 0..num_of_peers
+      keys = @peer_map.keys
+      ip = keys[rand(keys.length)]
+      h[ip] = @peer_map[ip]
+    end
+    h 
   end
 
   def register_backup
+    # probably a trivia one because
+    # backup server is nothing more than a peer
   end
 
-  def update_page
+
+  def update_page(userid, pagename)
+    @user_meta_mtx.synchronize do
+      list = @user_meta[userid]
+      if list.nil?
+        list = Hash.new
+      end
+      list[pagename] = assign_hosting_peers
+      pp list[pagename].inspect
+    end
   end
 
   def browse_page
   end
 
-  def pong(host, port)
-    send_message("PONG", host, port) 
-  end
   
 
   # override the accept_handler here
@@ -26,7 +77,11 @@ class CentralServer < BidirectionalServer
     while line = client.gets
       if(request_type(line.chop) == 0)
         line_array = line.split(":")
-        pong(client.peeraddr[2], line_array[1].to_i)
+        register_peer(client.peeraddr[3], line_array[1].to_i)
+        pong(client)
+      elsif(request_type(line.chop) == 1)
+       line_array = line.split(":") 
+        
       end 
     end
     super

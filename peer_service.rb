@@ -1,7 +1,7 @@
 require './peer_server.rb'
 
 
-host = 'localhost'
+host = 'center.p2phosta.uiucscheduling.emulab.net'
 port = 3000
 receiver_port = 3001
 client = PeerServer.new(receiver_port)
