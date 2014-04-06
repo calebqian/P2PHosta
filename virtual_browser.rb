@@ -25,7 +25,6 @@ class VirtualBrowser < BidirectionalServer
    @server = TCPSocket.open(hostname, port)
    Thread.start{
      while line = @server.gets
-       puts line.chop
        if(line.start_with?("GOFOR"))
          puts "This is GOFOR"
          line_array = line.split(":");
@@ -46,10 +45,24 @@ class VirtualBrowser < BidirectionalServer
          if(@counter < 10)
            browse_page(pagename)
          end
+       elsif(line.start_with?("GETREADY"))
+         puts "I am getting ready..."
+         line_array = line.split(":")
+         pagename = line_array[1]
+         file_size = line_array[2].to_i
+         file = @server.read file_size
+         @browse_after_time = Time.now 
+         diff = @browse_after_time - @browse_before_time
+         puts "total RTT: #{diff} seconds"
+         @counter += 1
+         if(@counter < 10)
+           browse_page(pagename)
+         end
        end
      end
    }
-  end 
+  end
+ 
 end
 
 vb = VirtualBrowser.new

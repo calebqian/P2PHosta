@@ -90,9 +90,13 @@ class CentralServer < BidirectionalServer
         pong(client)
       elsif(request_type(line.chop) == 1)
        line_array = line.split(":")
-       peer = browse_page(line_array[1].chop)
-       puts "I found the peer who has it is #{peer} with port #{@peer_map[peer]}" 
-       client.puts "GOFOR:#{line_array[1].chop}:#{peer}:#{@peer_map[peer]}"
+       pagename = line_array[1]
+       puts "I will give this guy #{pagename}"
+       file = File.open(pagename.chop, "rb")
+       contents = file.read
+       client.puts "GETREADY:#{pagename.chop}:#{contents.length}"
+       client.write contents
+       puts "Contents sent."
       end 
     end
     super
