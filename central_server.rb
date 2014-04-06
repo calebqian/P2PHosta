@@ -83,6 +83,7 @@ class CentralServer < BidirectionalServer
   # override the accept_handler here
   def accept_handler(client)
     while line = client.gets
+      puts line.chop
       if(request_type(line.chop) == 0)
         line_array = line.split(":")
         register_peer(client.peeraddr[3], line_array[1].to_i)
@@ -92,7 +93,6 @@ class CentralServer < BidirectionalServer
        peer = browse_page(line_array[1].chop)
        puts "I found the peer who has it is #{peer} with port #{@peer_map[peer]}" 
        client.puts "GOFOR:#{line_array[1].chop}:#{peer}:#{@peer_map[peer]}"
-       puts "I sent GOFOR:#{line_array[1.chop]}:#{peer}:#{@peer_map[peer]}"
       end 
     end
     super

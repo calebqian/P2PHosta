@@ -2,18 +2,22 @@ require './bidirectional_server.rb'
 require 'pp'
 require 'socket'
 
+Thread.abort_on_exception = true
 
 class VirtualBrowser < BidirectionalServer
-
+  @counter
   @server
   @browse_before_time
   @browse_after_time
   def initialize
+    @counter = 0
+    super
   end
 
   def browse_page(pagename)
-    @browse_before_time = Time.now 
-    @server.puts "BROWSE:#{pagename}"
+      puts "Server, I want to browse #{pagename}"
+      @browse_before_time = Time.now 
+      @server.puts "BROWSE:#{pagename}\n"
   end
 
   def start(hostname, port)
@@ -31,16 +35,19 @@ class VirtualBrowser < BidirectionalServer
          puts "I am trying to get #{pagename} from #{peer} at #{peer_port}"
          peer_server = TCPSocket.open(peer, peer_port.to_i)
          puts "Connected."
-         peer_server.puts "BROWSE:#{pagename}"
+         peer_server.print "BROWSE:#{pagename}\n"
          puts "I sent BROWSE request"
-         file =  peer_server.read
-         pp "I got: #{file}"
+         len = peer_server.gets
+         file =  peer_server.read len.to_i
          @browse_after_time = Time.now
          diff = @browse_after_time - @browse_before_time
-         puts "response time: #{diff} seconds"
+         puts "total RTT: #{diff} seconds"
+         @counter += 1
+         if(@counter < 10)
+           browse_page(pagename)
+         end
        end
      end
-     @server.close
    }
   end 
 end

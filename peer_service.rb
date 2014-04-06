@@ -1,6 +1,6 @@
 require './peer_server.rb'
 
-
+Thread.abort_on_exception = true
 host = 'center.p2phosta.uiucscheduling.emulab.net'
 port = 3000
 receiver_port = 3001

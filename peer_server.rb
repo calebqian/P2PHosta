@@ -40,12 +40,11 @@ class PeerServer < BidirectionalServer
          file = File.open(path, "rb");
          pp "File opened correctly."
          contents = file.read;
-         puts contents
+         contents.length
          file.close;
+         client.puts contents.length
          client.write contents
          puts "contents sent."
-         client.close
-
       end
     end
     super
