@@ -11,10 +11,11 @@ class VirtualBrowser < BidirectionalServer
   @lambda
   @browse_before_time
   @browse_after_time
-  def initialize
+
+  def initialize(lam, maxc)
     @counter = 0
-    @counter_max = 10
-    super
+    @lambda = lam
+    @counter_max = maxc
   end
 
   def browse_page(pagename)
@@ -26,30 +27,23 @@ class VirtualBrowser < BidirectionalServer
   def broadcast(hostname, port, pagename, lam, counter_max)
    server = TCPsocket.open(hostname, port)
    server.puts "BROADCAST:#{pagename}:#{lam}:#{counter_max}" 
+   server.close
   end
 
-  def accept_handler(client)
-    while line = client.gets
-       if(line.start_with?("BROADCAST"))
-         line_array = line.split(":")
-         pagename = line_array[1]
-         lam = line_array[2].to_i
-         @counter = 0
-         @lambda = lam
-         @counter_max = line_array[3].to_i
-         browse_page(pagename)
-      end
-    end
-    super
-  end
-
-  def start_vs(hostname, port)
+  def start(hostname, port)
    puts "starting my virtual browser..."
    @server = TCPSocket.open(hostname, port)
    Thread.start{
      while line = @server.gets
        puts line.chop
-       if(line.start_with?("GOFOR"))
+       if(line.start_with?("BROADCAST"))
+         line_array = line.split(":")
+         pagename = line_array[1]
+         lam = line_array[2].to_i
+         @lambda = lam
+         @counter_max = line_array[3].to_i
+         browse_page(pagename)
+       elsif(line.start_with?("GOFOR"))
          puts "This is GOFOR"
          line_array = line.split(":");
          pagename = line_array[1];
@@ -75,8 +69,17 @@ class VirtualBrowser < BidirectionalServer
   end 
 end
 
-vb = VirtualBrowser.new
-vb.start_vs('center.p2phosta.uiucscheduling.emulab.net', 3000)
-vb.start 3001
+vb = VirtualBrowser.new(10,10)
+vb.start('center.p2phosta.uiucscheduling.emulab.net', 3000)
+vb.broadcast('vb1.p2phosta.uiucscheduling.emulab.net', 3001,'index.html', 10, 10)
+vb.broadcast('vb2.p2phosta.uiucscheduling.emulab.net', 3001, 'index.html', 10, 10)
+vb.broadcast('vb3.p2phosta.uiucscheduling.emulab.net', 3001, 'index.html', 10, 10)
+vb.broadcast('vb4.p2phosta.uiucscheduling.emulab.net', 3001, 'index.html', 10, 10)
+vb.broadcast('vb5.p2phosta.uiucscheduling.emulab.net', 3001, 'index.html', 10, 10)
+vb.broadcast('vb6.p2phosta.uiucscheduling.emulab.net', 3001, 'index.html' ,10, 10)
+vb.broadcast('vb7.p2phosta.uiucscheduling.emulab.net', 3001, 'index.html', 10, 10)
+vb.broadcast('vb8.p2phosta.uiucscheduling.emulab.net', 3001, 'index.html', 10, 10)
+vb.broadcast('vb9.p2phosta.uiucscheduling.emulab.net', 3001, 'index.html', 10, 10)
+
 while(1)
 end
